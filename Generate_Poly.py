@@ -66,7 +66,7 @@ def generate_poly_with_variable_n_gons(n_gons, size_of_ds_poly):
           each of size (1 x n_gons) representing the coordinates of the vertices.
         Example:
         generate_poly_with_variable_n_gons([5, 6], 3)
-        >>>>a Tuple with 3 elements corresponding to:
+            a Tuple with 3 elements corresponding to:
             1 pair of arrays with the pentagon coordinates:
             [x_1,x_2,x_3,x_4,x_5]
             [y_1,y_2,y_3,y_4,y_5]
@@ -215,3 +215,230 @@ class DenoiseHPatchesPoly(keras.utils.Sequence):
     def on_epoch_end(self):
         # 'Updates indexes after each epoch'
         self.random_indices_poly = self.random_indices_poly[torch.randperm(len(self.random_indices_poly))]
+
+
+class DenoiseHPatchesPoly_Stage_0(keras.utils.Sequence):
+    """Class for loading a Polygons' sequence from a Marcin's Data folder.
+        Class to generate the Dataset for the experiment of Stage 0 (from shape to shape)
+        """
+
+    def __init__(self, ds_poly, random_indices_poly, batch_size):
+        # self.all_paths = [] not needed for poly
+        self.batch_size = batch_size
+        self.random_indices_poly = random_indices_poly
+        self.dim = (64, 64)
+        self.n_channels = 1
+        self.on_epoch_end()
+        self.ds_poly = ds_poly
+
+    def __len__(self):
+        '''Denotes the number of batches per epoch'''
+        return int(np.floor(len(self.random_indices_poly) / self.batch_size))
+
+    def __getitem__(self, index):
+        # be picked up
+        # shape of img_noise is (batch_size, 64, 64, 1)
+        # shape of img_noise is (batch_size, 64, 64, 1)
+        img_clean = np.empty((self.batch_size,) + self.dim + (self.n_channels,))
+        img_noise = np.empty((self.batch_size,) + self.dim + (self.n_channels,))
+        for i in range(self.batch_size):
+            img_clean[i] = array(self.ds_poly[self.random_indices_poly[index * self.batch_size + i]][0][0])[:, :, newaxis]
+            img_noise[i] = array(self.ds_poly[self.random_indices_poly[index * self.batch_size + i]][0][0])[:, :, newaxis]
+
+        return img_noise, img_clean
+
+    def on_epoch_end(self):
+        # 'Updates indexes after each epoch'
+        self.random_indices_poly = self.random_indices_poly[torch.randperm(len(self.random_indices_poly))]
+
+class DenoiseHPatchesPoly_Stage_1_3(keras.utils.Sequence):
+    """Class for loading a 5x6 matrix of parameters and a 64x64 image with the Von Misses stresses
+        from a Marcin's Data folder.
+        Class to generate the Dataset for the experiment of Stage 1_3 (from 5x6 parameters to Stresses)
+        """
+
+    def __init__(self, inputs, labels, random_indices_poly, batch_size):
+        # self.all_paths = [] not needed for poly
+        self.batch_size = batch_size
+        self.random_indices_poly = random_indices_poly
+        self.dim_out = (64, 64)
+        self.dim_in = (5, 6)
+        self.n_channels = 1
+        self.on_epoch_end()
+        self.inputs = inputs
+        self.labels = labels
+
+    def __len__(self):
+        '''Denotes the number of batches per epoch'''
+        return int(np.floor(len(self.random_indices_poly) / self.batch_size))
+
+    def __getitem__(self, index):
+        # be picked up
+        # shape of img_noise is (batch_size, 5, 6, 1)
+        # shape of img_noise is (batch_size, 64, 64, 1)
+        img_clean = np.empty((self.batch_size,) + self.dim_out + (self.n_channels,))
+        img_noise = np.empty((self.batch_size,) + self.dim_in + (self.n_channels,))
+        for i in range(self.batch_size):
+            img_clean[i] = array(self.labels[self.random_indices_poly[index * self.batch_size + i]][0][0])[:, :, newaxis]
+            img_noise[i] = array(self.inputs[self.random_indices_poly[index * self.batch_size + i]])[:, :, newaxis]
+
+        return img_noise, img_clean
+
+    def on_epoch_end(self):
+        # 'Updates indexes after each epoch'
+        self.random_indices_poly = self.random_indices_poly[torch.randperm(len(self.random_indices_poly))]
+
+
+# Function to generate the Dataset for the FOURTH experiment
+# The fourth experiment consists in making a network reconstruct the image of a
+# pentagon based on the coordinates of its corners.
+# The function allows to construct a Dataset that contains as Noisy image an
+# array 5x2 with the coordinates of the corners
+
+from numpy import array, newaxis, expand_dims
+
+
+class DenoiseHPatchesPoly_Exp4(keras.utils.Sequence):
+    """Class for loading an Polygons sequence from a sequence folder"""
+
+    def __init__(self, ds_poly, random_indices_poly, batch_size):
+        # self.all_paths = [] not needed for poly
+        self.ds_poly = ds_poly
+        self.batch_size = batch_size
+        self.random_indices_poly = random_indices_poly
+        self.dim_In = (5, 2)
+        self.dim_Out = (64, 64)
+        self.n_channels = 1
+        self.on_epoch_end()
+
+    def __len__(self):
+        '''Denotes the number of batches per epoch'''
+        return int(np.floor(len(self.random_indices_poly) / self.batch_size))
+
+    def __getitem__(self, index):
+        # For now, image noisy and image clean are the same thing
+        # be picked up
+        img_clean = np.empty((self.batch_size,) + self.dim_Out + (self.n_channels,))
+        img_noise = np.empty((self.batch_size,) + self.dim_In + (self.n_channels,))
+        for i in range(self.batch_size):
+            img_clean[i] = array(self.ds_poly[self.random_indices_poly[index * self.batch_size + i]][1])[:, :, newaxis]
+            # img_noise[i] = array(self.ds_poly[self.random_indices_poly[index*self.batch_size+i]][1])[:, :, newaxis]
+            img_noise[i] = np.concatenate((self.ds_poly[self.random_indices_poly[index * self.batch_size + i]][0][0],
+                                           self.ds_poly[self.random_indices_poly[index * self.batch_size + i]][0][1]),
+                                          axis=1)[:, :, newaxis]
+
+        return img_noise, img_clean
+
+    def on_epoch_end(self):
+        # 'Updates indexes after each epoch'
+        self.random_indices_poly = self.random_indices_poly[torch.randperm(len(self.random_indices_poly))]
+#         random.shuffle(self.all_paths)
+
+
+
+# Function to generate the Dataset for the Fifth experiment
+# The fifth experiment consists in making a network reconstruct the image of the
+# stresses on the polygon.
+# Images would be having 4 input channels (64,64,4):
+#    - one being an array only of zeros and ones, where the ones represent the corners of the polygon;
+#    - a scalar field indicating where and what forces  in the X direction are applied (which following the
+#       example of Marcin and Kamil would be non-zero only in correspondence of the corners)
+#    - a scalar field indicating where and what forces  in the Y direction are applied
+#    - a scalar field containing the BC information
+
+class DenoiseHPatchesPoly_Exp5(keras.utils.Sequence):
+    """Class for loading an Polygons sequence from a sequence folder
+        The fifth experiment consists in making a network reconstruct the image of the
+        stresses on the polygon.
+     Images would be having 4 input channels (64,64,4):
+        - one being an array only of zeros and ones, where the ones represent the corners of the polygon;
+        - a scalar field indicating where and what forces  in the X direction are applied (which following the example of Marcin and Kamil would be non-zero only in correspondence of the corners)
+        - a scalar field indicating where and what forces  in the Y direction are applied
+        - a scalar field containing the BC information
+     Output should be the Von Misses stress on the polygon
+    """
+
+    def __init__(self, inputs, labels, random_indices_poly, batch_size):
+        # self.all_paths = [] not needed for poly
+        self.inputs = inputs
+        self.labels = labels
+        self.batch_size = batch_size
+        self.random_indices_poly = random_indices_poly
+        self.dim = (64, 64)
+        self.in_channels = 4
+        self.out_channels = 1
+        self.on_epoch_end()
+
+    def __len__(self):
+        '''Denotes the number of batches per epoch'''
+        return int(np.floor(len(self.random_indices_poly) / self.batch_size))
+
+    def obtain_corners(self, v_x, v_y):
+        # From vertices in the range -1,1 to vertices in the range 1,64
+        vertices_x = ((v_x + 1) * (64 / 2)).round()  # need to be carefull that they end up arriving to 64, not 63
+        vertices_y = ((v_y + 1) * (64 / 2)).round()
+        # Create 64x64 zero tensor
+        base_array = torch.zeros((self.dim[0], self.dim[1]), dtype=torch.uint8)
+        # Populate it with ones in correspondance of vertices
+        for k in range(vertices_x.shape[0]):
+            base_array[int(vertices_x[k]) - 1][int(vertices_y[k]) - 1] = 1
+        return base_array.numpy()
+
+    def forces_at_corners(self, v_x, v_y, forces_to_apply):
+        # From vertices in the range -1,1 to vertices in the range 1,64
+        vertices_x = ((v_x + 1) * (64 / 2)).round()  # need to be carefull that they end up arriving to 64, not 63
+        vertices_y = ((v_y + 1) * (64 / 2)).round()
+        # Create 64x64 zero tensor
+        base_array = torch.zeros((self.dim[0], self.dim[1]), dtype=torch.uint8)
+        # Populate it with ones in correspondance of vertices
+        for k in range(vertices_x.shape[0]):
+            base_array[int(vertices_x[k]) - 1][int(vertices_y[k]) - 1] = forces_to_apply[k]
+        return base_array.numpy()
+
+    def fix_corners(self, v_x, v_y, corners_to_fix):
+        # From vertices in the range -1,1 to vertices in the range 1,64
+        vertices_x = ((v_x + 1) * (64 / 2)).round()  # need to be carefull that they end up arriving to 64, not 63
+        vertices_y = ((v_y + 1) * (64 / 2)).round()
+        # Create 64x64 zero tensor
+        base_array = torch.zeros((self.dim[0], self.dim[1]), dtype=torch.uint8)
+        # Populate it with ones in correspondance of vertices
+        for k in range(vertices_x.shape[0]):
+            if corners_to_fix[k] == 1:
+                base_array[int(vertices_x[k]) - 1][int(vertices_y[k]) - 1] = 1
+        return base_array.numpy()
+
+    def __getitem__(self, index):
+        # For now, image noisy and image clean are the same thing
+        # be picked up
+        img_clean = np.empty((self.batch_size,) + self.dim + (self.out_channels,))
+        img_noise = np.empty((self.batch_size,) + self.dim + (self.in_channels,))
+        for i in range(self.batch_size):
+            img_clean[i, :, :, 0] = array(self.labels[self.random_indices_poly[index * self.batch_size + i]][0][0])
+            # In the first input channel place an array only of zeros and ones, where the ones represent the corners of
+            # the polygon. To do so, pass the coordinates of the vertices to the function: obtain_corners.
+            img_noise[i, :, :, 0] = self.obtain_corners(self.inputs[self.random_indices_poly[index * self.batch_size + i]][:, 0],
+                                                        self.inputs[self.random_indices_poly[index * self.batch_size + i]][:, 1])
+            # In the second input channel place an a scalar field indicating where and what forces  in the X direction
+            # are applied (which following the example of Marcin and Kamil would be non-zero only in correspondence of
+            # the corners)
+            img_noise[i, :, :, 1] = self.forces_at_corners(
+                self.inputs[self.random_indices_poly[index * self.batch_size + i]][:, 0],
+                self.inputs[self.random_indices_poly[index * self.batch_size + i]][:, 1],
+                self.inputs[self.random_indices_poly[index * self.batch_size + i]][:, 4])
+            # In the third input channel place an a a scalar field indicating where and what forces  in the Y direction
+            # are applied
+            img_noise[i, :, :, 2] = self.forces_at_corners(
+                self.inputs[self.random_indices_poly[index * self.batch_size + i]][:, 0],
+                self.inputs[self.random_indices_poly[index * self.batch_size + i]][:, 1],
+                self.inputs[self.random_indices_poly[index * self.batch_size + i]][:, 5])
+            # In the fourth input channel place a scalar field containing the BC information
+            img_noise[i, :, :, 2] = self.fix_corners(
+                self.inputs[self.random_indices_poly[index * self.batch_size + i]][:, 0],
+                self.inputs[self.random_indices_poly[index * self.batch_size + i]][:, 1],
+                self.inputs[self.random_indices_poly[index * self.batch_size + i]][:, 2])
+        return img_noise, img_clean
+
+    def on_epoch_end(self):
+        # 'Updates indexes after each epoch'
+        self.random_indices_poly = self.random_indices_poly[torch.randperm(len(self.random_indices_poly))]
+#         random.shuffle(self.all_paths)

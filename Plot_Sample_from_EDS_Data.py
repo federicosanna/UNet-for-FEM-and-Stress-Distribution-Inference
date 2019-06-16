@@ -38,10 +38,7 @@ def plot_sample():
     $ python -c "import Plot_Sample; print(Plot_Sample.plot_sample())"
 
     """
-    # n_gons = [4, 5, 6, 7, 8]  # Types of polygons to be contained in the dataset
-    n_gons = [5]
     canvas_size = 64
-    size_of_ds_poly = 6000
 
     # Construct the argument parser and parse the arguments
     # Allow naming your saved model in different ways without changing the code
@@ -56,14 +53,19 @@ def plot_sample():
     print("[INFO] loading pre-trained network...")
     denoise_model = load_model(args["model"])
 
+    # ====================== Input & Output are from same dataset =========================
+    # Inputs = np.load(
+    #     '/media/federico/Seagate Expansion Drive/DataProject/EDS_Data/10_diffShapesBEST/Labels_DataSet.npy')
+    # random_indices_poly = torch.randperm(len(Inputs))
+    # generator = GP.DenoiseHPatchesPoly_Stage_0(random_indices_poly=random_indices_poly, ds_poly=Inputs, batch_size=50)
+
+    # ====================== Input & Output are from different dataset =========================
     Inputs = np.load(
+        '/media/federico/Seagate Expansion Drive/DataProject/EDS_Data/10_diffShapesBEST/Params_DataSet.npy')
+    Labels = np.load(
         '/media/federico/Seagate Expansion Drive/DataProject/EDS_Data/10_diffShapesBEST/Labels_DataSet.npy')
-    # ds_poly = GP.SlighlyMoreClevr(n_gons=n_gons, canvas_size=canvas_size, size_of_ds_poly=size_of_ds_poly)  # Generate dataset
-    # random_indices_poly = torch.randperm(len(ds_poly))
     random_indices_poly = torch.randperm(len(Inputs))
-    generator = GP.DenoiseHPatchesPoly_Stage_0(random_indices_poly=random_indices_poly, ds_poly=Inputs, batch_size=50)
-    # generator = GP.DenoiseHPatchesPoly(random_indices_poly=random_indices_poly, ds_poly=ds_poly, batch_size=50)
-    # generator = GP.DenoiseHPatchesPoly_Exp4(random_indices_poly=random_indices_poly, ds_poly=ds_poly, batch_size=50)
+    generator = GP.DenoiseHPatchesPoly_Exp5(random_indices_poly=random_indices_poly, inputs=Inputs, labels=Labels, batch_size=50)
 
 
     imgs, imgs_clean = next(iter(generator))
