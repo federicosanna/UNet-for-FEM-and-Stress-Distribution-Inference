@@ -76,6 +76,7 @@ Each polygon of the Multi-Poly dataset is described by 3 objects as follows:
 - The cartesian coordinates of the polygon in the form nx2;
 - A 64x64 matrix with ones in correspondence to corners and zeros otherwise;
 - A 64x64 matrix with ones inside the polygon and zeros otherwise. 
+
 ![coord](https://user-images.githubusercontent.com/30337324/61965604-7e5f3700-afc8-11e9-8411-77acc86e910e.png)
 ![Picture1](https://user-images.githubusercontent.com/30337324/61965629-8919cc00-afc8-11e9-9e66-20998b2579c2.png)
 ![Picture2](https://user-images.githubusercontent.com/30337324/61965640-920a9d80-afc8-11e9-90c4-04a4ad553b4a.png)
