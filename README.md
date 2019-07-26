@@ -25,7 +25,10 @@ The main is divided into commented sections that perform different tasks (as des
 appropriate section to perform the task needed.
 
 In order to print sample reconstructions there are a number of functions available:
-- *Plot_Sample.py* will plot
+- *Plot_Sample.py* will plot a sample reconstruction using the model you have just trained, which is saved automatically
+in the folder "Saved_Models" with the name: modellino.model
+- *Plot_Image_Report.py* will plot a comparison of different models for a certain task
+- *Plot_Image_Report_ForceToStress.py* will plot the recontructions from the three different architectures developed here.
 
 ### Abstract
 
