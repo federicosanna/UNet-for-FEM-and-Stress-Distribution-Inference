@@ -1,10 +1,9 @@
-# Exploring-Design-Spaces
+# Stress Distribution Inference using U-Net Based Fully Convolutional Networks
 
 A Machine Learning approach to Finite Element Methods, using [U-Net](https://github.com/zhixuhao/unet) inspired architectures.
 
 
-This project has been developed as master thesis for in Imperial College London with the supervision of Prof. A. Bharath and
-Dr. Masouros.
+This project has been developed as part of my master thesis for in Imperial College London with the supervision of Prof. A. Bharath and Dr. Masouros.
 
 ![concept_diagram](https://user-images.githubusercontent.com/30337324/61964160-26730100-afc5-11e9-9c13-95d752d206fb.jpeg)
 
@@ -51,4 +50,20 @@ variable input size; DGCNN networks similarly demonstrated this ability to proce
 size while in addition embedding an adjacency matrix. In light of these results, both may prove to be promising FEM surrogate
 candidates. 
 
+## Description
+
+This works adapts the U-Net architecture to the tasks of shape reconstruction and stress distribution inference. The general structure of the model consists of a traditional contracting network supplemented with a series of up-sampling layers. The large number of feature channels in the up-sampling part ensures that context information and physical characteristics are propagated to higher resolution layers. 
+
+### Architecture
+
+A total of five architectures have been implemented and explored in this study. Three of them (Minimal, Shallow and Full U-Nets) include both an encoding and a decoding part; the other two (Half U-Net for shape reconstruction and Half U-Net for stress estimation) comprise only the decoder. Below we report the details of the two best performers of each type. 
+
+Shallow U-Net architecture:
+![UnetArch](https://user-images.githubusercontent.com/30337324/61965127-6c30c900-afc7-11e9-8c12-6290aeb9995d.png)
+Half U-Net architecture:
+![Half-UnetArch](https://user-images.githubusercontent.com/30337324/61965155-7a7ee500-afc7-11e9-87ee-ac0463f31a6a.png)
+The Shallow U-Net (Figure 8.a) takes a 64x64 matrix input and returns either the reconstructed shape of the polygon, or the distribution of stresses. Between other modifications, this network is fundamentally different from [13] in the application of padding and strides, such that the input size is maintained to the output.
+Its contracting path (left of Figure 8.a) consists of 3 convolutional blocks each with two 3x3 padded 2D convolutions followed by a rectified linear unit (ReLU) and of a 2x2 max pooling step with stride 1 for down-sampling. Similarly, the bottleneck is made of a 3x3 padded convolution with a ReLU. In the expansive path (right side in left of Figure 8.a), every block consists of an up-sampling deconvolution of the feature map with filter size 2x2 followed by two 3x3 2D convolutions. After each up-sampling operation, there is the concatenation with the cropped feature map from the corresponding convolutional layer. The final layer consists of a 1x1 convolution to reduce the number of feature maps of the output to 1. No fully connected layer is used in the network.
+The other architecture, here named Half U-Net (Figure 8.b), is designed to start from a low dimensional input and hence consists of the expansive part only. However, as this network is constrained in its input size, it presents similar limitations to previous solutions and is reported here only as an alternative approach to former studies.
+It consists of 6 deconvolutional blocks, each with an up-sampling deconvolution followed by two 3x3 2D convolutions. The first 5 up-sampling operations have filter size 2x2, while the last one is applied with a 1x2 filter. After the second upsampling, a convolution with strides (2,1) is applied in order to obtain the desired output size. The final layer consists of a 1x1 convolution.
 
