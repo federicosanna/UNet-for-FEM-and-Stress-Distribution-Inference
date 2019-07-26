@@ -70,25 +70,25 @@ tf.set_random_seed(1234)
 # denoise_model = Models.get_denoise_model(shape)
 
 #   ===================================== Stage 0 for Stress Reconstuction =====================================
-
-Inputs = np.load('/media/federico/Seagate Expansion Drive/DataProject/EDS_Data/10_diffShapesBEST/Labels_DataSet.npy')
-
-# Generate random train and test dataset
-split = 0.8
-random_indices_poly = torch.randperm(len(Inputs))
-train_split_poly = int(split * len(Inputs))
-train_random_indices_poly = random_indices_poly[:train_split_poly]
-test_random_indices_poly = random_indices_poly[train_split_poly:]
-
-# Class for loading Polygons sequence from a sequence folder
-denoise_generator_poly = GP.DenoiseHPatchesPoly_Stage_0(random_indices_poly=train_random_indices_poly, ds_poly=Inputs, batch_size=50)
-denoise_generator_val_poly = GP.DenoiseHPatchesPoly_Stage_0(random_indices_poly=test_random_indices_poly, ds_poly=Inputs, batch_size=50)
-
-shape = (64, 64, 1)
-denoise_model = Models.get_denoise_model(shape)
+#
+# Inputs = np.load('/media/federico/Seagate Expansion Drive/DataProject/EDS_Data/10_diffShapesBEST/Labels_DataSet.npy')
+#
+# # Generate random train and test dataset
+# split = 0.1
+# random_indices_poly = torch.randperm(len(Inputs))
+# train_split_poly = int(split * len(Inputs))
+# train_random_indices_poly = random_indices_poly[:train_split_poly]
+# test_random_indices_poly = random_indices_poly[train_split_poly:]
+#
+# # Class for loading Polygons sequence from a sequence folder
+# denoise_generator_poly = GP.DenoiseHPatchesPoly_Stage_0(random_indices_poly=train_random_indices_poly, ds_poly=Inputs, batch_size=50)
+# denoise_generator_val_poly = GP.DenoiseHPatchesPoly_Stage_0(random_indices_poly=test_random_indices_poly, ds_poly=Inputs, batch_size=50)
+#
+# shape = (64, 64, 1)
+# denoise_model = Models.get_denoise_model(shape)
 
 #   ===================================== Stage 1_3 =====================================
-
+#
 # Inputs = np.load('/media/federico/Seagate Expansion Drive/DataProject/EDS_Data/10_diffShapesBEST/Params_DataSet.npy')
 # Labels = np.load('/media/federico/Seagate Expansion Drive/DataProject/EDS_Data/10_diffShapesBEST/Inputs_DataSet.npy')
 #
@@ -107,7 +107,7 @@ denoise_model = Models.get_denoise_model(shape)
 # denoise_model = Models.get_denoise_model_5x6(shape)
 
 #   ===================================== Experiment 5 =====================================
-
+#
 # Inputs = np.load('/media/federico/Seagate Expansion Drive/DataProject/EDS_Data/10_diffShapesBEST/Params_DataSet.npy')
 # Labels = np.load('/media/federico/Seagate Expansion Drive/DataProject/EDS_Data/10_diffShapesBEST/Labels_DataSet.npy')
 #
@@ -125,10 +125,28 @@ denoise_model = Models.get_denoise_model(shape)
 # shape = (64, 64, 4)
 # denoise_model = Models.get_denoise_model(shape)
 
+#   ===================================== Experiment 6 =====================================
+
+Inputs = np.load('/media/federico/Seagate Expansion Drive/DataProject/EDS_Data/10_diffShapesBEST/Params_DataSet.npy')
+Labels = np.load('/media/federico/Seagate Expansion Drive/DataProject/EDS_Data/10_diffShapesBEST/Labels_DataSet.npy')
+
+# Generate random train and test dataset
+split = 0.75
+random_indices_poly = torch.randperm(len(Inputs))
+train_split_poly = int(split * len(Inputs))
+train_random_indices_poly = random_indices_poly[:train_split_poly]
+test_random_indices_poly = random_indices_poly[train_split_poly:]
+
+# Class for loading Polygons sequence from a sequence folder
+denoise_generator_poly = GP.DenoiseHPatchesPoly_Exp6(random_indices_poly=train_random_indices_poly, inputs=Inputs, labels=Labels, batch_size=50)
+denoise_generator_val_poly = GP.DenoiseHPatchesPoly_Exp6(random_indices_poly=test_random_indices_poly, inputs=Inputs, labels=Labels, batch_size=50)
+
+shape = (64, 64, 4)
+denoise_model = Models.get_baseline_model(shape)
+
 #   ===================================== Train =====================================
 
-
-epochs = 1
+epochs = 100
 
 Train_Denoiser.train_denoiser(denoise_generator_poly, denoise_generator_val_poly, denoise_model, epochs)
 

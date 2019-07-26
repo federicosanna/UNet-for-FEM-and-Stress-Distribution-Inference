@@ -42,22 +42,29 @@ def train_denoiser(denoise_generator_poly, denoise_generator_val_poly, model, ep
     acc_denoise_history = []
     val_acc_denoise_history = []
     for e in range(epochs):
-        print("Epoch is " + str(e))
-        denoise_history = denoise_model.fit_generator(generator=denoise_generator_poly,
-                                                      epochs=1, verbose=1,
-                                                      validation_data=denoise_generator_val_poly)
-        ### Saves optimizer and weights
-        denoise_model.save('denoise.h5')
-        ### Uploads files to external hosting
-        # curl - F "file=@denoise.h5" https: // file.io
-        # list all data in history
-        print(denoise_history.history.keys())
-        acc_denoise_history.append(denoise_history.history['loss'][0])
-        val_acc_denoise_history.append(denoise_history.history['val_loss'][0])
-        print("Length of acc_descriptor_history is:" + str(len(acc_denoise_history)))
-        print(acc_denoise_history)
-        print("Length of val_acc_descriptor_history is:" + str(len(val_acc_denoise_history)))
-        print(val_acc_denoise_history)
+        try:
+            print("Epoch is " + str(e))
+            denoise_history = denoise_model.fit_generator(generator=denoise_generator_poly,
+                                                          epochs=1, verbose=1,
+                                                          validation_data=denoise_generator_val_poly)
+            ### Saves optimizer and weights
+            denoise_model.save('denoise.h5')
+            ### Uploads files to external hosting
+            # curl - F "file=@denoise.h5" https: // file.io
+            # list all data in history
+            print(denoise_history.history.keys())
+            acc_denoise_history.append(denoise_history.history['loss'][0])
+            val_acc_denoise_history.append(denoise_history.history['val_loss'][0])
+            print("Length of acc_descriptor_history is:" + str(len(acc_denoise_history)))
+            print(acc_denoise_history)
+            print("Length of val_acc_descriptor_history is:" + str(len(val_acc_denoise_history)))
+            print(val_acc_denoise_history)
+            print("[INFO] serializing network to '{}'...".format(args["model"]))
+            model.save(args["model"])
+        except KeyboardInterrupt:
+
+            break
+
 
     # save the network to disk
     print("[INFO] serializing network to '{}'...".format(args["model"]))
