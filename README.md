@@ -96,7 +96,7 @@ Lastly, we tested the networks on the stress estimation task using a modified ve
 	a scalar field indicating location and magnitude of forces in the vertical direction;
 	a binary matrix containing the boundary conditions information, indicating what corners are fixed (fixation was applied in all directions).
 The normalisation function implemented accounted for the nature of the physics of the problem. Forces and Von Misses stresses were normalised by:
-G= max(√(〖F_x〗^2+ 〖F_y〗^2 ))
+<img width="200" alt="Screenshot 2019-07-26 at 17 21 59" src="https://user-images.githubusercontent.com/30337324/61966247-1b6e9f80-afca-11e9-8d5d-293d7ee7148c.png">
 were F_x and F_y are the forces applied to each vertex, so that G is the maximum vector force applied to the polygon. In contrast to previous approaches, we do not assume to know a priori the output stress and do not use it for normalization, which results in significantly greater employability of the model in real analysis.
 Again, the same training parameters were applied for this task.
 
