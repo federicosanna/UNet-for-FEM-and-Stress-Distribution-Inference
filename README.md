@@ -104,3 +104,37 @@ The normalisation function implemented accounted for the nature of the physics o
 were F_x and F_y are the forces applied to each vertex, so that G is the maximum vector force applied to the polygon. In contrast to previous approaches, we do not assume to know a priori the output stress and do not use it for normalization, which results in significantly greater employability of the model in real analysis.
 Again, the same training parameters were applied for this task.
 
+### Results
+
+To verify the networks’ understanding of underlying physics we are interested in testing their ability to compress the shape or stress distribution information into a bottleneck, then decode it back to the original shape.
+
+Reconstruction of polygon shapes using different U-Net based models. New sample polygons unseen by the network were generated using the same method proposed for the Multi-Poly dataset. From the right: the target image (Target) and the reconstructions by the Minimal U-Net, by the Full U-Net, and the Shallow U-Net:
+
+<img width="907" alt="Screenshot 2019-07-26 at 17 28 38" src="https://user-images.githubusercontent.com/30337324/61966676-1eb65b00-afcb-11e9-9a63-753d955372a7.png">
+
+Reconstruction of the stress distribution on polygons using different U-Net based models. Stress is in MPa:
+
+<img width="903" alt="Screenshot 2019-07-26 at 17 29 01" src="https://user-images.githubusercontent.com/30337324/61966697-2ece3a80-afcb-11e9-90b1-a27d5d388c99.png">
+
+All models took less than 0.1 seconds to reconstruct a single 64x64 image on a recent GPU. During these tasks, different metrics were recorded to assess the performances of the models: training loss, testing loss, mean squared error, mean percentage error and image difference, with the latter obtained by calculating the sum of the difference between predicted output and ground truth at the end divisible by the test dataset size. 
+
+Next, we looked at the ability of the networks to reconstruct polygon shapes from the coordinates input in order to verify their understanding of geometrical relationships. Whilst this is a trivial task for humans, or can be hardcoded easily, a model must correctly infer geometrical principles. Half U-Net was used on pentagons only due to its fixed input size. 
+The networks were trained as describe above over the Multi-Poly dataset.
+
+Reconstruction of different polygons using the proposed networks. The input is a 64x64 matrix with ones in correspondence of the corners and zeros otherwise. The ground truth image (Target), is a 64x64 matrix with ones inside the polygon and zeros otherwise:
+
+![Picture3](https://user-images.githubusercontent.com/30337324/61966877-c7fd5100-afcb-11e9-9d19-5b893dc8fa33.png)
+
+Lastly, we employed the networks in the stress estimation task, involving complex physical input-output relationships. 
+The networks were trained as described above over the Benkirane and Laskowski dataset.
+
+Estimate of stress distributions using the proposed networks. The input comprises coordinates, forces and boundary conditions in the form of 64x64 matrices. Output is Von Misses stresses in 64x64 matrix form:
+
+<img width="773" alt="Screenshot 2019-07-26 at 17 29 57" src="https://user-images.githubusercontent.com/30337324/61966725-4279a100-afcb-11e9-85db-1c9dbb8093c3.png">
+
+For better comparison with previous methods, the average maximum stress error (AMSE) was computed, obtained by calculating the sum of the difference between predicted and ground truth maximum stresses, at the end divisible by the test dataset size.
+
+Compares stress estimation results obtained with Shallow U-Net (left) and the best results obtained by M&L (right) on the dataset of highest complexity. Stress reconstruction by M&L are available online .
+
+<img width="818" alt="Screenshot 2019-07-26 at 17 30 30" src="https://user-images.githubusercontent.com/30337324/61966767-5c1ae880-afcb-11e9-8c17-9aad58aa989e.png">
+
