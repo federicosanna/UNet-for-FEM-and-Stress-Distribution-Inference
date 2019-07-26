@@ -83,3 +83,20 @@ Each polygon of the Multi-Poly dataset is described by 3 objects as follows:
 
 In addition, we tested our models on the dataset created by Benkirane and Laskowski, which is composed of 10,000 pentagons with their respective Von Misses stresses. This contains information relative to corner coordinates, boundary conditions and forces applied to them, and the corresponding Von Misses stresses in the form of a 64x64 matrix (more information about the dataset can be found [here](https://github.com/mlaskowski17/Exploring-Design-Spaces)).
 
+### Training
+
+Several experiments were run to test model performance on different tasks.
+In the first instance, Minimal, Shallow and Full U-Net were trained on the Shape-to-Shape and Stress-to-Stress reconstruction to check the models’ understanding of the underlying physics. When trained to estimate the shape and stresses of the polygon, we used the Multi-Poly and Benkirane-Laskowski’s datasets respectively. In both tasks, models were trained on the whole datasets with a training/validation split of 75/25 using random weights initializations, Adam optimiser (learning rate = 0.001, beta = 0.9, beta2 = 0.999), and batch size of 50. The networks were trained over 10 epochs. Since we are using an encoder-decoder model and working with images, mean absolute error (MAE) and mean squared error (MSE) metrics are good fits for the loss function. The former produced the best results and was chosen for our experiment:
+![equation](https://user-images.githubusercontent.com/30337324/61966158-e3675c80-afc9-11e9-90fa-cce026391505.png)
+where y_i  is the target output for a pixel, x_i  is the predicted output and n is the number of pixels.
+Secondly, the models were trained to reconstruct polygons starting from corner coordinates. This task tests the ability of the networks to generate a high dimensional output from a low dimensionality input, therefore requiring the decoder to exploit the geometrical relationship between the two. The networks have been trained both on a fraction of the Multi-Poly dataset containing purely pentagons (2,400 data) and on the entire variety of shapes in the Multi-Poly dataset. The same training parameters as before were found to be optimal and were therefore adopted.
+Lastly, we tested the networks on the stress estimation task using a modified version of the Shallow U-Net with 4 input channels. The network was fed with corner coordinates, boundary conditions, and the forces applied. Forces were considered to be planar, and all data was organised on 4 64x64 matrices as follows:
+	a binary matrix with ones in correspondence of the corners;
+	a scalar field indicating location and magnitude of forces in the horizontal direction (non-zero only at corners);
+	a scalar field indicating location and magnitude of forces in the vertical direction;
+	a binary matrix containing the boundary conditions information, indicating what corners are fixed (fixation was applied in all directions).
+The normalisation function implemented accounted for the nature of the physics of the problem. Forces and Von Misses stresses were normalised by:
+G= max(√(〖F_x〗^2+ 〖F_y〗^2 ))
+were F_x and F_y are the forces applied to each vertex, so that G is the maximum vector force applied to the polygon. In contrast to previous approaches, we do not assume to know a priori the output stress and do not use it for normalization, which results in significantly greater employability of the model in real analysis.
+Again, the same training parameters were applied for this task.
+
