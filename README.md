@@ -60,10 +60,23 @@ A total of five architectures have been implemented and explored in this study. 
 
 Shallow U-Net architecture:
 ![UnetArch](https://user-images.githubusercontent.com/30337324/61965127-6c30c900-afc7-11e9-8c12-6290aeb9995d.png)
+The Shallow U-Net takes a 64x64 matrix input and returns either the reconstructed shape of the polygon, or the distribution of stresses. Between other modifications, this network is fundamentally different from the original U-Net in the application of padding and strides, such that the input size is maintained to the output.
+Its contracting path (left of figure) consists of 3 convolutional blocks each with two 3x3 padded 2D convolutions followed by a rectified linear unit (ReLU) and of a 2x2 max pooling step with stride 1 for down-sampling. Similarly, the bottleneck is made of a 3x3 padded convolution with a ReLU. In the expansive path (right side in left of Figure 8.a), every block consists of an up-sampling deconvolution of the feature map with filter size 2x2 followed by two 3x3 2D convolutions. After each up-sampling operation, there is the concatenation with the cropped feature map from the corresponding convolutional layer. The final layer consists of a 1x1 convolution to reduce the number of feature maps of the output to 1. No fully connected layer is used in the network.
+
 Half U-Net architecture:
 ![Half-UnetArch](https://user-images.githubusercontent.com/30337324/61965155-7a7ee500-afc7-11e9-87ee-ac0463f31a6a.png)
-The Shallow U-Net (Figure 8.a) takes a 64x64 matrix input and returns either the reconstructed shape of the polygon, or the distribution of stresses. Between other modifications, this network is fundamentally different from [13] in the application of padding and strides, such that the input size is maintained to the output.
-Its contracting path (left of Figure 8.a) consists of 3 convolutional blocks each with two 3x3 padded 2D convolutions followed by a rectified linear unit (ReLU) and of a 2x2 max pooling step with stride 1 for down-sampling. Similarly, the bottleneck is made of a 3x3 padded convolution with a ReLU. In the expansive path (right side in left of Figure 8.a), every block consists of an up-sampling deconvolution of the feature map with filter size 2x2 followed by two 3x3 2D convolutions. After each up-sampling operation, there is the concatenation with the cropped feature map from the corresponding convolutional layer. The final layer consists of a 1x1 convolution to reduce the number of feature maps of the output to 1. No fully connected layer is used in the network.
-The other architecture, here named Half U-Net (Figure 8.b), is designed to start from a low dimensional input and hence consists of the expansive part only. However, as this network is constrained in its input size, it presents similar limitations to previous solutions and is reported here only as an alternative approach to former studies.
+
+The other architecture, here named Half U-Net, is designed to start from a low dimensional input and hence consists of the expansive part only. However, as this network is constrained in its input size, it presents similar limitations to previous solutions and is reported here only as an alternative approach to former studies.
 It consists of 6 deconvolutional blocks, each with an up-sampling deconvolution followed by two 3x3 2D convolutions. The first 5 up-sampling operations have filter size 2x2, while the last one is applied with a 1x2 filter. After the second upsampling, a convolution with strides (2,1) is applied in order to obtain the desired output size. The final layer consists of a 1x1 convolution.
 
+### Dataset
+
+An ad hoc dataset, which will be referred to here as Multi-Poly dataset, was generated to train the networks. It consists of 12,000 planar shapes, equally divided between polygons with 4 to 8 corners. Vertices are generated starting from a circle of radius 1. Each vertex falls at a random distance between 0.8-1 from the centre. The angles between each vertex, initially set to 360/n, are perturbated following a normal distribution with variance (90/n)^2, where n is the number of corners for a given polygon. The coordinates are then scaled based on the canvas size (or image size).
+Each polygon of the Multi-Poly dataset is described by 3 objects as follows:
+- The cartesian coordinates of the polygon in the form nx2;
+- A 64x64 matrix with ones in correspondence to corners and zeros otherwise;
+- A 64x64 matrix with ones inside the polygon and zeros otherwise. 
+In addition, we tested our models on the dataset created by Benkirane and Laskowski, which is composed of 10,000 pentagons with their respective Von Misses stresses. This contains information relative to corner coordinates, boundary conditions and forces applied to them, and the corresponding Von Misses stresses in the form of a 64x64 matrix (more information about the dataset can be found [here](https://github.com/mlaskowski17/Exploring-Design-Spaces)).
+![coord](https://user-images.githubusercontent.com/30337324/61965604-7e5f3700-afc8-11e9-8411-77acc86e910e.png)
+![Picture1](https://user-images.githubusercontent.com/30337324/61965629-8919cc00-afc8-11e9-9e66-20998b2579c2.png)
+![Picture2](https://user-images.githubusercontent.com/30337324/61965640-920a9d80-afc8-11e9-90c4-04a4ad553b4a.png)
