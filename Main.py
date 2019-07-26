@@ -127,6 +127,7 @@ tf.set_random_seed(1234)
 
 #   ===================================== Experiment 6 =====================================
 
+# Data used for training and testing are contained into an external hard disk 'Seagate Expansion Drive'
 Inputs = np.load('/media/federico/Seagate Expansion Drive/DataProject/EDS_Data/10_diffShapesBEST/Params_DataSet.npy')
 Labels = np.load('/media/federico/Seagate Expansion Drive/DataProject/EDS_Data/10_diffShapesBEST/Labels_DataSet.npy')
 
@@ -146,13 +147,13 @@ denoise_model = Models.get_baseline_model(shape)
 
 #   ===================================== Train =====================================
 
-epochs = 100
+epochs = 1
 
 Train_Denoiser.train_denoiser(denoise_generator_poly, denoise_generator_val_poly, denoise_model, epochs)
 
 #   ===================================== Output results =====================================
 
-imgs, imgs_clean = next(iter(denoise_generator_poly))
+imgs, imgs_clean = next(iter(denoise_generator_val_poly))
 index = np.random.randint(0, imgs.shape[0])
 imgs_den = denoise_model.predict(imgs)
 
