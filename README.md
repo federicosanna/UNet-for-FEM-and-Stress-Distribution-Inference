@@ -6,8 +6,7 @@ A Machine Learning approach to Finite Element Methods, using [U-Net](https://git
 This project has been developed as master thesis for in Imperial College London with the supervision of Prof. A. Bharath and
 Dr. Masouros.
 
-![concept_diagram](https://github.com/federicosanna/Exploring-Design-Spaces/files/3436445/concept_diagram_comprehensive2.pdf)
-
+![concept_diagram](https://user-images.githubusercontent.com/30337324/61964160-26730100-afc5-11e9-9c13-95d752d206fb.jpeg)
 
 #### Practical advice
 
